@@ -3,158 +3,205 @@
 #include <limits.h>
 #include <string.h>
 
-struct Node{
-  int data;
-  struct Node *next;
-}*top = NULL;
+struct Node
+{
+    int data;
+    struct Node *next;
+} *top = NULL;
 
 //don't need a ptr because we are changing a global list ptr
-void push(int x){
-    
+void push(int x)
+{
+
     //create new node
     struct Node *t;
     t = (struct Node *)malloc(sizeof(struct Node));
-    
-    if(t == NULL)
+
+    if (t == NULL)
         printf("Stack is Full\n"); //this just means no space was allocated b/c resources
-    else{
-        t->data = x; //save data to new node
-        t->next= top; //old top is now t->next (insert on left)
-        top = t; //top is now t
+    else
+    {
+        t->data = x;   //save data to new node
+        t->next = top; //old top is now t->next (insert on left)
+        top = t;       //top is now t
     }
 }
 //need a ptr because we are changing the stack
-int pop(){
+int pop()
+{
     int x;
     //create new node ptr to use as top
     struct Node *t;
 
-    if(top == NULL)
+    if (top == NULL)
         printf("Stack is Empty\n"); //this just means no space was allocated b/c resources
-    else{
-        t = top; //temp ptr to pt to top of stack
+    else
+    {
+        t = top;         //temp ptr to pt to top of stack
         top = top->next; // move top to next node on stack
-        x = t->data; //temp ptr save data
-        free(t); //free node pted to by t
+        x = t->data;     //temp ptr save data
+        free(t);         //free node pted to by t
     }
     return x;
-}//don't need to pass anything to display globals list
-void display(){
-    
+} //don't need to pass anything to display globals list
+void display()
+{
+
     //need a reference to it, so we aren't actually moving global ptr
     struct Node *p;
     p = top;
-    
-    while(p){
-        printf("%d ",p->data);
+
+    while (p)
+    {
+        printf("%d ", p->data);
         p = p->next;
     }
     printf("\n");
 }
-int stackTop(){
-    if(top == NULL){
+int stackTop()
+{
+    if (top == NULL)
+    {
         return -1;
     }
     else
         return top->data;
 }
-void isEmpty(){
-   if(top == NULL)
+void isEmpty()
+{
+    if (top == NULL)
         printf("The stack is empty.\n");
     else
-        printf("The stack is not empty.\n"); 
+        printf("The stack is not empty.\n");
 }
-void isFull(){
+void isFull()
+{
     struct Node *p;
     p = (struct Node *)malloc(sizeof(struct Node));
-    if(p == NULL)
+    if (p == NULL)
         printf("The stack is full.\n");
     else
         printf("The stack is not full.\n");
 }
-int peek(int pos){
-    
+int peek(int pos)
+{
+
     int x = -1;
     struct Node *t = top; //temp ptr
-    
+
     //pos 1 is top of stack, so should fail loop statement
-    for(int i = 1; i < pos; i++){
+    for (int i = 1; i < pos; i++)
+    {
         t = t->next;
     }
     //if t is not assigned then not a position
-    if(t == NULL){
+    if (t == NULL)
+    {
         printf("Invalid Position\n");
     }
-    else{
+    else
+    {
         x = t->data;
     }
     return x;
 }
 
-int isOperand(char x){
-    if( x == '+' || x == '-' || x == '*' || x == '/' ){
+int isOperand(char x)
+{
+    if (x == '+' || x == '-' || x == '*' || x == '/')
+    {
         return 0;
     }
     else
         return 1;
 }
-int preced(char x){
-    if(x == '+' || x == '-')
+int preced(char x)
+{
+    if (x == '+' || x == '-')
         return 1;
-    else if(x == '*' || x == '/')
+    else if (x == '*' || x == '/')
         return 2;
     else
         return 0;
 }
 
-char* convert(char *infix){
-      
-    char *postfix = (char*)malloc( (strlen(infix) + 2) * sizeof(char)); //add one for null term and extra push?
-    
+char *convert(char *infix)
+{
+
+    char *postfix = (char *)malloc((strlen(infix) + 2) * sizeof(char)); //add one for null term and extra push?
+
     int i = 0, j = 0;
-    while(infix[i] != '\0'){
-        if( isOperand(infix[i]) )
+    while (infix[i] != '\0')
+    {
+        if (isOperand(infix[i]))
             //if it's a blank space skip it
-            if(infix[i] == ' '){
+            if (infix[i] == ' ')
+            {
                 infix[i++];
             }
             else
                 postfix[j++] = infix[i++]; //if operand add to postfix right away
-        else{
-            if(preced(infix[i]) > preced(stackTop())){ //if char prec > stackTop prec
+        else
+        {
+            if (preced(infix[i]) > preced(stackTop()))
+            {                     //if char prec > stackTop prec
                 push(infix[i++]); //push to stack then increment char ptr
             }
-            else{
+            else
+            {
                 postfix[j++] = pop(); //if char prec is lower or equal then pop and add to postfix
             }
         }
     }
     //empty out remaining stack operators
-    while(top!=NULL){
+    while (top != NULL)
+    {
         postfix[j++] = pop();
     }
-    
+
     postfix[j] = '\0'; //add null term at end
     return postfix;
 }
 
-int evalPostfix(char *postfix){
-    
-    int x1,x2,r;
-    for(int i = 0; postfix[i] != '\0'; i++){
-        if(isOperand(postfix[i])){
-            push(postfix[i]-'0'); //subtract char by 0 char, get actual int for that char
-            printf("Pushed %c\n",postfix[i]);
+int evalPostfix(char *postfix)
+{
+
+    int x1, x2, r;
+    for (int i = 0; postfix[i] != '\0'; i++)
+    {
+        if (isOperand(postfix[i]))
+        {
+            push(postfix[i] - '0'); //subtract char by 0 char, get actual int for that char
+            printf("Pushed %c\n", postfix[i]);
         }
-        else{
+        else
+        {
             //first pop is right operand, second is left operand
-            x2= pop(); x1=pop();
+            x2 = pop();
+            x1 = pop();
             //current postfix is operator, find operation to do and push result to stack
-            switch(postfix[i]){
-                case '+' : r = x1+x2; push(r); printf("%d+%d\n",x1,x2);break;
-                case '-' : r = x1-x2; push(r); printf("%d-%d\n",x1,x2);break;
-                case '*' : r = x1*x2; push(r); printf("%d*%d\n",x1,x2);break;
-                case '/' : r = x1/x2; push(r); printf("%d/%d\n",x1,x2);break;
+            switch (postfix[i])
+            {
+            case '+':
+                r = x1 + x2;
+                push(r);
+                printf("%d+%d\n", x1, x2);
+                break;
+            case '-':
+                r = x1 - x2;
+                push(r);
+                printf("%d-%d\n", x1, x2);
+                break;
+            case '*':
+                r = x1 * x2;
+                push(r);
+                printf("%d*%d\n", x1, x2);
+                break;
+            case '/':
+                r = x1 / x2;
+                push(r);
+                printf("%d/%d\n", x1, x2);
+                break;
             }
         }
     }
@@ -185,7 +232,8 @@ void resolve(char *infix)
     printf("Postfix was computed and the result was: %d\n", evalPostfix(postfix));
 }
 
-int main(){
+int main()
+{
 
     int ret, input;
     //prompt user to choose an equation
@@ -276,4 +324,3 @@ int main(){
 
     return 0;
 }
-

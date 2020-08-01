@@ -180,9 +180,9 @@ void resolve(char *infix)
 {
     //convert infix to postfix
     char *postfix = convert(infix);
-    printf("%s\n", postfix);
+    printf("Postfix was computed as: %s\n", postfix);
     //evaluate postfix
-    printf("Result of postfix eval: %d\n", evalPostfix(postfix));
+    printf("Postfix was computed and the result was: %d\n", evalPostfix(postfix));
 }
 
 int main(){
